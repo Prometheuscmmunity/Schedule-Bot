@@ -1,13 +1,29 @@
 using System;
 using System.Xml.Linq;
 using System.Xml;
+using System.IO;
 
 namespace XmlUsers
 {
     class User
     {
+        public static void CheckDoc()
+        {
+            try
+            {
+                XDocument xDoc = XDocument.Load("users.xml");
+            }
+            catch(FileNotFoundException)
+            {
+                XDocument xDoc = new XDocument(new XElement("users", ""));
+                xDoc.Save("users.xml");
+                Console.WriteLine("Done");
+            }
+        }
+
         public static void CreateUser(long UserId)
         {
+            CheckDoc();
             XDocument xDoc = XDocument.Load("users.xml");
             XElement xRoot = xDoc.Element("users");
             XElement newUser = new XElement("user",
@@ -22,6 +38,7 @@ namespace XmlUsers
         public static bool CheckUser(long UserId) //Проверка существования пользователя
         {
             //Делаю через System.Xml
+            CheckDoc();
             XmlDocument xDoc = new XmlDocument();
             xDoc.Load("users.xml");
             XmlElement xRoot = xDoc.DocumentElement;
@@ -37,6 +54,7 @@ namespace XmlUsers
         {
 
             //Делаю через System.Xml
+            CheckDoc();
             XmlDocument xDoc = new XmlDocument();
             xDoc.Load("users.xml");
             XmlElement xRoot = xDoc.DocumentElement;
@@ -51,6 +69,7 @@ namespace XmlUsers
         public static void EditUser(long UserId, string type, string param)
         {
             //Делаю через System.Xml
+            CheckDoc();
             XmlDocument xDoc = new XmlDocument();
             xDoc.Load("users.xml");
             XmlElement xRoot = xDoc.DocumentElement;
@@ -70,9 +89,10 @@ namespace XmlUsers
                 }
             }
         }
-        public static string CheckUserElements(long UserId, string type) //ЧТО МЫ ВЫВОДИМ? Должны ли мы искать по определенному type? 
+        public static string CheckUserElements(long UserId, string type) 
         {
             //Делаю через System.Xml
+            CheckDoc();
             XmlDocument xDoc = new XmlDocument();
             xDoc.Load("users.xml");
             XmlElement xRoot = xDoc.DocumentElement;
