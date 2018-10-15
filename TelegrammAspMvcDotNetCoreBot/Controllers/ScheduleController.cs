@@ -2,6 +2,7 @@ using System;
 using System.Xml.Linq;
 using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 using TelegrammAspMvcDotNetCoreBot.Models.ScheduleExceptions.AlreadyExists;
 using TelegrammAspMvcDotNetCoreBot.Models.ScheduleExceptions.DoesntExists;
 
@@ -9,7 +10,11 @@ namespace ScheduleController
 {
     class Program
     {
-        private static XDocument xDoc = XDocument.Load("un.xml");
+        
+        // Путь к файлу с расписанием
+        public static string schedFile = "";
+        
+        private static XDocument xDoc = XDocument.Load(schedFile);
 
         private static XElement xRoot = xDoc.Root;
 
@@ -17,10 +22,28 @@ namespace ScheduleController
             {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday"};
 
 
-        private static void XRootReload(ref XElement XRoot)
+        private static void XRootReload(ref XElement xRoot)
         {
-            XDocument xDoc = XDocument.Load("un.xml");
-            XRoot = xDoc.Root;
+            XDocument xDoc = XDocument.Load(schedFile);
+            xRoot = xDoc.Root;
+        }
+
+        public static void CheckFile(string fileUrl)
+        {
+            if (!File.Exists(fileUrl))
+            {
+                XElement root = new XElement("universities");
+                XDocument docTemp = new XDocument();
+                docTemp.Add(root);
+                docTemp.Save(fileUrl);
+                xDoc = XDocument.Load(fileUrl);
+                xRoot = xDoc.Root;
+            }
+            else
+            {
+                xDoc = XDocument.Load(fileUrl);
+                xRoot = xDoc.Root;
+            }
         }
 
         public static bool IsUniverExist(string name)
@@ -337,7 +360,7 @@ namespace ScheduleController
                 XAttribute univerNameAttr = new XAttribute("name", name);
                 univer.Add(univerNameAttr);
                 xRoot.Add(univer);
-                xRoot.Save("un.xml");
+                xRoot.Save(schedFile);
                 XRootReload(ref xRoot);
             }
             else
@@ -361,7 +384,7 @@ namespace ScheduleController
                     XAttribute facultyName = new XAttribute("name", facName);
                     faculty.Add(facultyName);
                     univer.Add(faculty);
-                    xRoot.Save("un.xml");
+                    xRoot.Save(schedFile);
                     XRootReload(ref xRoot);
                 }
                 else
@@ -396,7 +419,7 @@ namespace ScheduleController
                         XAttribute courseName = new XAttribute("num", num.ToString());
                         course.Add(courseName);
                         fac.Add(course);
-                        xRoot.Save("un.xml");
+                        xRoot.Save(schedFile);
                         XRootReload(ref xRoot);
                     }
                     else
@@ -442,7 +465,7 @@ namespace ScheduleController
                             XAttribute groupName = new XAttribute("id", groupId);
                             group.Add(groupName);
                             course.Add(group);
-                            xRoot.Save("un.xml");
+                            xRoot.Save(schedFile);
                             XRootReload(ref xRoot);
                         }
                         else
@@ -508,7 +531,7 @@ namespace ScheduleController
                             }
 
                             group.Add(curWeek);
-                            xRoot.Save("un.xml");
+                            xRoot.Save(schedFile);
                             XRootReload(ref xRoot);
                         }
                         else
@@ -593,7 +616,7 @@ namespace ScheduleController
                                     curDay.Add(para);
                                 }
 
-                                xRoot.Save("un.xml");
+                                xRoot.Save(schedFile);
                                 XRootReload(ref xRoot);
                             }
                             else
@@ -683,7 +706,7 @@ namespace ScheduleController
                                     }
                                 }          
 
-                                xRoot.Save("un.xml");
+                                xRoot.Save(schedFile);
                                 XRootReload(ref xRoot);
                             }
                             else
