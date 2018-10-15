@@ -16,15 +16,6 @@ namespace ScheduleController
         private static readonly string[] weekDays =
             {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday"};
 
-        private static void Main(string[] args)
-        {
-            Para t = new Para("kek", "15:30", "501", "keka k.b.");
-            List<Para> k = new List<Para>() {t};
-            List < List < Para >> l = new List<List<Para>>(){k};
-            AddSheduleWeek("финашка", "матан", 1, "idk", 1, l);
-//            AddGroup("финашка", "матан", 1, "idk");
-            XRootReload(ref xRoot);
-        }
 
         private static void XRootReload(ref XElement XRoot)
         {
