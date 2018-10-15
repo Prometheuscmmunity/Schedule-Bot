@@ -42,36 +42,36 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                 }
             }
 
-			if (UserController.CheckUserAv(message.Chat.Id))
+			if (UserController.CheckUser(message.Chat.Id))
 			{
-				if (UserController.Get(message.Chat.Id, "university") == "")
+				if (UserController.CheckUserElements(message.Chat.Id, "university") == "")
 				{
 
-					UserController.EditUser(message.Chat.Id, message.Text);
+					UserController.EditUser(message.Chat.Id, message.Text, "university");
 					await botClient.SendTextMessageAsync(message.Chat.Id, "Теперь выбери факультет", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
 					return Ok();
 
 				}
-				else if (UserController.Get(message.Chat.Id, "faculty") == "")
+				else if (UserController.CheckUserElements(message.Chat.Id, "faculty") == "")
 				{
 
-					UserController.EditUser(message.Chat.Id, message.Text);
+					UserController.EditUser(message.Chat.Id, message.Text, "faculty");
 					await botClient.SendTextMessageAsync(message.Chat.Id, "Теперь выбери курс", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
 					return Ok();
 
 				}
-				else if (UserController.Get(message.Chat.Id, "course") == "")
+				else if (UserController.CheckUserElements(message.Chat.Id, "course") == "")
 				{
 
-					UserController.EditUser(message.Chat.Id, message.Text);
+					UserController.EditUser(message.Chat.Id, message.Text, "course");
 					await botClient.SendTextMessageAsync(message.Chat.Id, "Теперь выбери группу", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
 					return Ok();
 
 				}
-				else if (UserController.Get(message.Chat.Id, "group") == "")
+				else if (UserController.CheckUserElements(message.Chat.Id, "group") == "")
 				{
 
-					UserController.EditUser(message.Chat.Id, message.Text);
+					UserController.EditUser(message.Chat.Id, message.Text, "group");
 					await botClient.SendTextMessageAsync(message.Chat.Id, "Отлично, можем работать!", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
 					return Ok();
 

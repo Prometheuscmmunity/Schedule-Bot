@@ -3,10 +3,10 @@ using System.Xml.Linq;
 using System.Xml;
 using System.IO;
 
-namespace XmlUsers
+namespace TelegrammAspMvcDotNetCoreBot.Controllers
 {
-    class User
-    {
+    class UserController
+	{
         public static void CheckDoc()
         {
             try
@@ -17,7 +17,6 @@ namespace XmlUsers
             {
                 XDocument xDoc = new XDocument(new XElement("users", ""));
                 xDoc.Save("users.xml");
-                Console.WriteLine("Done");
             }
         }
 

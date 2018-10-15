@@ -11,6 +11,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 {
     public class ScheduleUpdateController
 	{
+		//тест
 		static void Update()
 		{
 			string mainUrl = "http://misis.ru/students/";
