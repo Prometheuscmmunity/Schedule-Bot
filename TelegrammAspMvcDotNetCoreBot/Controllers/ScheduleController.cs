@@ -23,12 +23,12 @@ namespace ScheduleController
             XRoot = xDoc.Root;
         }
 
-        private static bool IsUniverExist(string name)
+        public static bool IsUniverExist(string name)
         {
             return xRoot.Elements("university").Any(s => s.Attribute("name").Value.ToLower() == name.ToLower());
         }
 
-        private static bool IsFacExist(string univerName, string facName)
+        public static bool IsFacExist(string univerName, string facName)
         {
             if (IsUniverExist(univerName))
             {
@@ -47,7 +47,7 @@ namespace ScheduleController
             }
         }
 
-        private static bool IsCourseExist(string univerName, string facName, int num)
+        public static bool IsCourseExist(string univerName, string facName, int num)
         {
             if (IsUniverExist(univerName) && IsFacExist(univerName, facName))
             {
@@ -70,7 +70,7 @@ namespace ScheduleController
             }
         }
 
-        private static bool IsGroupExist(string univerName, string facName, int num, string groupId)
+        public static bool IsGroupExist(string univerName, string facName, int num, string groupId)
         {
             if (IsUniverExist(univerName) && IsFacExist(univerName, facName) && IsCourseExist(univerName, facName, num))
             {
@@ -98,7 +98,7 @@ namespace ScheduleController
             }
         }
 
-        private static bool IsWeekExist(string univerName, string facName, int num, string groupId, int week)
+        public static bool IsWeekExist(string univerName, string facName, int num, string groupId, int week)
         {
             if (IsUniverExist(univerName) && IsFacExist(univerName, facName) &&
                 IsCourseExist(univerName, facName, num) && IsGroupExist(univerName, facName, num, groupId))
@@ -144,7 +144,7 @@ namespace ScheduleController
             return false;
         }
 
-        private static List<string> GetUniversities()
+        public static List<string> GetUniversities()
         {
             var items =
                 from xe in xRoot.Elements("university")
@@ -153,7 +153,7 @@ namespace ScheduleController
             return univerNames;
         }
 
-        private static List<string> GetFaculties(string univerName)
+        public static List<string> GetFaculties(string univerName)
         {
             if (IsUniverExist(univerName))
             {
@@ -176,7 +176,7 @@ namespace ScheduleController
             }
         }
 
-        private static List<string> GetCourses(string univerName, string facName)
+        public static List<string> GetCourses(string univerName, string facName)
         {
             if (IsUniverExist(univerName))
             {
@@ -205,7 +205,7 @@ namespace ScheduleController
             throw new UniversityDoesntExistsException();
         }
 
-        private static List<string> GetGroups(string univerName, string facName, int course)
+        public static List<string> GetGroups(string univerName, string facName, int course)
         {
             if (IsUniverExist(univerName))
             {
@@ -245,7 +245,7 @@ namespace ScheduleController
             throw new UniversityDoesntExistsException();
         }
 
-        private static List<Para> GetDaysShedule(string univerName, string facName, int course, string groupId,
+        public static List<Para> GetDaysShedule(string univerName, string facName, int course, string groupId,
             int week, int weekDay)
         {
             if (IsUniverExist(univerName))
@@ -329,7 +329,7 @@ namespace ScheduleController
             throw new UniversityDoesntExistsException();
         }
 
-        private static void AddUniversity(string name)
+        public static void AddUniversity(string name)
         {
             if (!IsUniverExist(name))
             {
@@ -346,7 +346,7 @@ namespace ScheduleController
             }
         }
 
-        private static void AddFaculty(string univerName, string facName)
+        public static void AddFaculty(string univerName, string facName)
         {
             if (IsUniverExist(univerName))
             {
@@ -375,7 +375,7 @@ namespace ScheduleController
             }
         }
 
-        private static void AddCourse(string univerName, string facName, int num)
+        public static void AddCourse(string univerName, string facName, int num)
         {
             if (IsUniverExist(univerName))
             {
@@ -415,7 +415,7 @@ namespace ScheduleController
             }
         }
 
-        private static void AddGroup(string univerName, string facName, int num, string groupId)
+        public static void AddGroup(string univerName, string facName, int num, string groupId)
         {
             if (IsUniverExist(univerName))
             {
@@ -466,7 +466,7 @@ namespace ScheduleController
             }
         }
 
-        private static void AddWeek(string univerName, string facName, int num, string groupId, int week)
+        public static void AddWeek(string univerName, string facName, int num, string groupId, int week)
         {
             if (IsUniverExist(univerName))
             {
@@ -532,7 +532,7 @@ namespace ScheduleController
             }
         }
 
-        private static void AddSheduleDay(string univerName, string facName, int num, string groupId, int week, int day,
+        public static void AddSheduleDay(string univerName, string facName, int num, string groupId, int week, int day,
             List<Para> shed)
         {
             if (IsUniverExist(univerName))
@@ -621,7 +621,7 @@ namespace ScheduleController
                 throw new UniversityDoesntExistsException();
             }
         }
-        private static void AddSheduleWeek(string univerName, string facName, int num, string groupId, int week, List<List<Para>> shed)
+        public static void AddSheduleWeek(string univerName, string facName, int num, string groupId, int week, List<List<Para>> shed)
         {
             if (IsUniverExist(univerName))
             {
