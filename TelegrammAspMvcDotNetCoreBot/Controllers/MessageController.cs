@@ -47,7 +47,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 				if (UserController.CheckUserElements(message.Chat.Id, "university") == "")
 				{
 
-					UserController.EditUser(message.Chat.Id, message.Text, "university");
+					UserController.EditUser(message.Chat.Id, "university", message.Text);
 					await botClient.SendTextMessageAsync(message.Chat.Id, "Теперь выбери факультет", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
 					return Ok();
 
@@ -55,7 +55,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 				else if (UserController.CheckUserElements(message.Chat.Id, "faculty") == "")
 				{
 
-					UserController.EditUser(message.Chat.Id, message.Text, "faculty");
+					UserController.EditUser(message.Chat.Id, "faculty", message.Text);
 					await botClient.SendTextMessageAsync(message.Chat.Id, "Теперь выбери курс", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
 					return Ok();
 
@@ -63,7 +63,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 				else if (UserController.CheckUserElements(message.Chat.Id, "course") == "")
 				{
 
-					UserController.EditUser(message.Chat.Id, message.Text, "course");
+					UserController.EditUser(message.Chat.Id, "course", message.Text);
 					await botClient.SendTextMessageAsync(message.Chat.Id, "Теперь выбери группу", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
 					return Ok();
 
@@ -71,7 +71,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 				else if (UserController.CheckUserElements(message.Chat.Id, "group") == "")
 				{
 
-					UserController.EditUser(message.Chat.Id, message.Text, "group");
+					UserController.EditUser(message.Chat.Id, "group", message.Text);
 					await botClient.SendTextMessageAsync(message.Chat.Id, "Отлично, можем работать!", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
 					return Ok();
 

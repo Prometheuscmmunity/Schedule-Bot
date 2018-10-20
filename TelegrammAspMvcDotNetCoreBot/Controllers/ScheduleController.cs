@@ -5,14 +5,15 @@ using System.Collections.Generic;
 using System.IO;
 using TelegrammAspMvcDotNetCoreBot.Models.ScheduleExceptions.AlreadyExists;
 using TelegrammAspMvcDotNetCoreBot.Models.ScheduleExceptions.DoesntExists;
+using TelegrammAspMvcDotNetCoreBot.Models;
 
-namespace ScheduleController
+namespace TelegrammAspMvcDotNetCoreBot.Controllers
 {
-    class Program
-    {
+	public static class ScheduleController
+	{
         
         // Путь к файлу с расписанием
-        public static string schedFile = "";
+        public static string schedFile = Path.Combine(Directory.GetCurrentDirectory(), "s.xml");
         
         private static XDocument xDoc = XDocument.Load(schedFile);
 
@@ -28,20 +29,20 @@ namespace ScheduleController
             xRoot = xDoc.Root;
         }
 
-        public static void CheckFile(string fileUrl)
+        public static void CheckFile()
         {
-            if (!File.Exists(fileUrl))
+            if (!File.Exists(schedFile))
             {
                 XElement root = new XElement("universities");
                 XDocument docTemp = new XDocument();
                 docTemp.Add(root);
-                docTemp.Save(fileUrl);
-                xDoc = XDocument.Load(fileUrl);
+                docTemp.Save(schedFile);
+                xDoc = XDocument.Load(schedFile);
                 xRoot = xDoc.Root;
             }
             else
             {
-                xDoc = XDocument.Load(fileUrl);
+                xDoc = XDocument.Load(schedFile);
                 xRoot = xDoc.Root;
             }
         }
