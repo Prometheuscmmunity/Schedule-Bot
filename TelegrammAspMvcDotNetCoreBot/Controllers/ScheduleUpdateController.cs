@@ -6,13 +6,14 @@ using CsQuery;
 using System.IO;
 using System.Net;
 using System.Text;
+using TelegrammAspMvcDotNetCoreBot.Controllers;
 
 namespace TelegrammAspMvcDotNetCoreBot.Controllers
 {
-    public class ScheduleUpdateController
+    public static class ScheduleUpdateController
 	{
 		//тест
-		static void Update()
+		public static void Update()
 		{
 			string mainUrl = "http://misis.ru/students/";
 
@@ -23,15 +24,18 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
 			foreach (IDomObject obj in cq.Find(".XLSX a"))
 			{
-				Download("http://misis.ru" + obj.GetAttribute("href"), count + "мисис");
+				//Download("http://misis.ru" + obj.GetAttribute("href"), count + "мисис.xlsx");
+
 				count++;
 			}
 
 			foreach (IDomObject obj in cq.Find(".XLS a"))
 			{
-				Download("http://misis.ru" + obj.GetAttribute("href"), count + "мисис");
+				//Download("http://misis.ru" + obj.GetAttribute("href"), count + "мисис.xls");
 				count++;
 			}
+
+			ExcelParserController.Read("0мисис.xlsx");
 		}
 
 		static string GetResponse(string uri)
@@ -59,7 +63,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 			HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
 			HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
 			Stream stream = resp.GetResponseStream();
-			FileStream file = new FileStream(@"" + name + ".xls", FileMode.Create, FileAccess.Write);
+			FileStream file = new FileStream(@"" + name, FileMode.Create, FileAccess.Write);
 			StreamWriter write = new StreamWriter(file);
 			int b;
 			for (int i = 0; ; i++)
@@ -70,6 +74,8 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 			}
 			write.Close();
 			file.Close();
+
+			ExcelParserController.Read(name);
 		}
 
 	}

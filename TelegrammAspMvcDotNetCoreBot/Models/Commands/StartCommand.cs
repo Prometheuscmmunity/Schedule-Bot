@@ -29,7 +29,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Models.Commands
 
 			var chatId = message.Chat.Id;
 
-			UserController.CheckUser(chatId);
+			UserController.CreateUser(chatId);
 
 			//await botClient.SendTextMessageAsync(chatId, "Hallo I'm ASP.NET Core Bot and I made by Mr.Robot", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
 			await botClient.SendTextMessageAsync(chatId, "Привет, выбери свой университет", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown, replyMarkup: (Telegram.Bot.Types.ReplyMarkups.IReplyMarkup) KeybordController.GetKeyboard(buttons, 1));

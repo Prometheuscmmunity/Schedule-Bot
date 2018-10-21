@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TelegrammAspMvcDotNetCoreBot.Models;
+using TelegrammAspMvcDotNetCoreBot.Controllers;
 using System.Net;
 using System.IO;
 
@@ -18,10 +19,11 @@ namespace TelegrammAspMvcDotNetCoreBot
         {
             Configuration = configuration;
 
-			Thread thread = new Thread(new ThreadStart(Function));
-			thread.IsBackground = true;
-			thread.Name = "Function";
-			thread.Start();
+			//Thread thread = new Thread(new ThreadStart(Function));
+			//thread.IsBackground = true;
+			//thread.Name = "Function";
+			//thread.Start();
+			ScheduleUpdateController.Update();
 		}
 
         public IConfiguration Configuration { get; }
@@ -44,6 +46,9 @@ namespace TelegrammAspMvcDotNetCoreBot
 
 		protected static void TimerEvent(object sender, System.Timers.ElapsedEventArgs e)
 		{
+			
+			ScheduleUpdateController.Update();
+
 			if (DateTime.Now.Minute == 1)
 			{
 				HttpWebRequest req = (HttpWebRequest)WebRequest.Create("http://misis.ru/files/-/01a3d5fd557b752504a92686c0f486b4/%D0%98%D0%A2%D0%90%D0%A1%D0%A3.xls");

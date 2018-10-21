@@ -31,6 +31,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                 new XElement("faculty", ""),
                 new XElement("course", ""),
                 new XElement("group", ""));
+			xRoot.Add(newUser);
             xDoc.Save("users.xml");
         }
 
@@ -102,15 +103,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
             {
                 if (find.Name == type)
                 {
-                    if (find.InnerText != "")
-                    {
-                        ans = "";
-                    }
-                    else
-                    {
                         ans = find.InnerText;
-                    }
-                    return ans;
                 }
             }
             return ans;

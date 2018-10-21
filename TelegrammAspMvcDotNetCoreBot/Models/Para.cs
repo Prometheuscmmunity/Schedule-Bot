@@ -1,4 +1,4 @@
-namespace ScheduleController
+namespace TelegrammAspMvcDotNetCoreBot.Models
 {
     public class Para
     {
