@@ -12,7 +12,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 	public static class ScheduleController
 	{
         
-        // Путь к файлу с расписанием
+        // Путь к файлу с расписание
         public static string schedFile = Path.Combine(Directory.GetCurrentDirectory(), "s.xml");
         
         private static XDocument xDoc = XDocument.Load(schedFile);
