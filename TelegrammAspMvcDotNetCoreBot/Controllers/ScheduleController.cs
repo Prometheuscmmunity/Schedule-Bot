@@ -11,21 +11,21 @@ namespace ScheduleController
     class Program
     {
         
-        // Путь к файлу с расписанием
-        public static string schedFile = "";
-        
-        private static XDocument xDoc = XDocument.Load(schedFile);
+         // Путь к файлу с расписанием
+        public static string schedFile = "un.xml";
 
-        private static XElement xRoot = xDoc.Root;
+
+        private static XDocument xDoc;
+
+        private static XElement xRoot;
 
         private static readonly string[] weekDays =
             {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday"};
 
-
-        private static void XRootReload(ref XElement xRoot)
+        private static void Main(string[] args)
         {
-            XDocument xDoc = XDocument.Load(schedFile);
-            xRoot = xDoc.Root;
+            CheckFile(schedFile);
+            AddGroup("мисис", "инфа",1,"idk");
         }
 
         public static void CheckFile(string fileUrl)
@@ -36,14 +36,16 @@ namespace ScheduleController
                 XDocument docTemp = new XDocument();
                 docTemp.Add(root);
                 docTemp.Save(fileUrl);
-                xDoc = XDocument.Load(fileUrl);
-                xRoot = xDoc.Root;
             }
-            else
-            {
-                xDoc = XDocument.Load(fileUrl);
-                xRoot = xDoc.Root;
-            }
+
+            xDoc = XDocument.Load(fileUrl);
+            xRoot = xDoc.Root;
+        }
+
+        public static void XRootReload(ref XElement XRoot)
+        {
+            XDocument xDoc = XDocument.Load(schedFile);
+            XRoot = xDoc.Root;
         }
 
         public static bool IsUniverExist(string name)
@@ -360,13 +362,21 @@ namespace ScheduleController
                 XAttribute univerNameAttr = new XAttribute("name", name);
                 univer.Add(univerNameAttr);
                 xRoot.Add(univer);
-                xRoot.Save(schedFile);
-                XRootReload(ref xRoot);
             }
             else
             {
-                throw new UniversityAlreadyExistsException();
+                XElement temp;
+                XElement univer =
+                    (from un in xRoot.Elements("university")
+                        where un.Attribute("name").Value.ToLower() == name.ToLower()
+                        select un).ToList().First();
+                temp = univer;
+                univer.Remove();
+                xRoot.Add(temp);
             }
+
+            xRoot.Save(schedFile);
+            XRootReload(ref xRoot);
         }
 
         public static void AddFaculty(string univerName, string facName)
@@ -384,13 +394,26 @@ namespace ScheduleController
                     XAttribute facultyName = new XAttribute("name", facName);
                     faculty.Add(facultyName);
                     univer.Add(faculty);
-                    xRoot.Save(schedFile);
-                    XRootReload(ref xRoot);
                 }
                 else
                 {
-                    throw new FacultyAlreadyExistsException();
+                    XElement temp;
+                    XElement univer =
+                        (from un in xRoot.Elements("university")
+                            where un.Attribute("name").Value.ToLower().Equals(univerName.ToLower())
+                            select un).ToList().First();
+                    XElement faculty =
+                        (from f in univer.Elements("faculty")
+                            where f.Attribute("name").Value.ToLower().Equals(facName.ToLower())
+                            select f).ToList().First();
+
+                    temp = faculty;
+                    faculty.Remove();
+                    univer.Add(temp);
                 }
+
+                xRoot.Save(schedFile);
+                XRootReload(ref xRoot);
             }
             else
             {
@@ -419,13 +442,30 @@ namespace ScheduleController
                         XAttribute courseName = new XAttribute("num", num.ToString());
                         course.Add(courseName);
                         fac.Add(course);
-                        xRoot.Save(schedFile);
-                        XRootReload(ref xRoot);
                     }
                     else
                     {
-                        throw new CourseAlreadyExistsException();
+                        XElement temp;
+                        XElement univer =
+                            (from un in xRoot.Elements("university")
+                                where un.Attribute("name").Value.ToLower().Equals(univerName.ToLower())
+                                select un).ToList().First();
+                        XElement faculty =
+                            (from f in univer.Elements("faculty")
+                                where f.Attribute("name").Value.ToLower().Equals(facName.ToLower())
+                                select f).ToList().First();
+                        
+                        XElement course = 
+                            (from c in faculty.Elements("course")
+                                where c.Attribute("num").Value.Equals(num.ToString())
+                                select c).ToList().First();
+                        
+                        temp = course;
+                        course.Remove();
+                        faculty.Add(temp);
                     }
+                    xRoot.Save(schedFile);
+                    XRootReload(ref xRoot);
                 }
                 else
                 {
@@ -464,80 +504,40 @@ namespace ScheduleController
                             XElement group = new XElement("group");
                             XAttribute groupName = new XAttribute("id", groupId);
                             group.Add(groupName);
+                            XElement ev = new XElement("even-week");
+                            XElement odd = new XElement("odd-week");
+                            group.Add(ev, odd);
                             course.Add(group);
-                            xRoot.Save(schedFile);
-                            XRootReload(ref xRoot);
+                            
                         }
                         else
                         {
-                            throw new GroupAlreadyExistsException();
-                        }
-                    }
-                    else
-                    {
-                        throw new CourseDoesntExistsException();
-                    }
-                }
-                else
-                {
-                    throw new FacultyDoesntExistsException();
-                }
-            }
-            else
-            {
-                throw new UniversityDoesntExistsException();
-            }
-        }
-
-        public static void AddWeek(string univerName, string facName, int num, string groupId, int week)
-        {
-            if (IsUniverExist(univerName))
-            {
-                if (IsFacExist(univerName, facName))
-                {
-                    if (IsCourseExist(univerName, facName, num))
-                    {
-                        if (IsGroupExist(univerName, facName, num, groupId))
-                        {
+                            XElement temp;
                             XElement univer =
                                 (from un in xRoot.Elements("university")
                                     where un.Attribute("name").Value.ToLower().Equals(univerName.ToLower())
                                     select un).ToList().First();
-                            XElement fac =
+                            XElement faculty =
                                 (from f in univer.Elements("faculty")
                                     where f.Attribute("name").Value.ToLower().Equals(facName.ToLower())
                                     select f).ToList().First();
-
-                            XElement course =
-                                (from c in fac.Elements("course")
-                                    where c.Attribute("num").Value.ToLower().Equals(num.ToString())
+                        
+                            XElement course = 
+                                (from c in faculty.Elements("course")
+                                    where c.Attribute("num").Value.Equals(num.ToString())
                                     select c).ToList().First();
+
                             XElement group =
                                 (from g in course.Elements("group")
                                     where g.Attribute("id").Value.ToLower().Equals(groupId.ToLower())
                                     select g).ToList().First();
-                            XElement curWeek;
-                            if (week == 1)
-                            {
-                                curWeek = new XElement("even-week");
-                            }
-                            else if (week == 2)
-                            {
-                                curWeek = new XElement("odd-week");
-                            }
-                            else
-                            {
-                                throw new WeekDoesntExistsException();
-                            }
-
-                            group.Add(curWeek);
-                            xRoot.Save(schedFile);
-                            XRootReload(ref xRoot);
+                        
+                            temp = group;
+                            group.Remove();
+                            course.Add(temp);
                         }
-                        else
-                        {
-                            throw new GroupDoesntExistsException();
-                        }
+                        xRoot.Save(schedFile);
+                        XRootReload(ref xRoot);
                     }
                     else
                     {
@@ -585,7 +585,7 @@ namespace ScheduleController
                                     (from g in course.Elements("group")
                                         where g.Attribute("id").Value.ToLower().Equals(groupId.ToLower())
                                         select g).ToList().First();
-                                XElement curWeek;
+                                XElement curWeek = new XElement("");
                                 if (week == 1)
                                 {
                                     curWeek = group.Element("even-week");
@@ -593,10 +593,6 @@ namespace ScheduleController
                                 else if (week == 2)
                                 {
                                     curWeek = group.Element("odd-week");
-                                }
-                                else
-                                {
-                                    throw new WeekDoesntExistsException();
                                 }
 
                                 group.Add(curWeek);
@@ -644,7 +640,9 @@ namespace ScheduleController
                 throw new UniversityDoesntExistsException();
             }
         }
-        public static void AddSheduleWeek(string univerName, string facName, int num, string groupId, int week, List<List<Para>> shed)
+
+        public static void AddSheduleWeek(string univerName, string facName, int num, string groupId, int week,
+            List<List<Para>> shed)
         {
             if (IsUniverExist(univerName))
             {
@@ -673,7 +671,7 @@ namespace ScheduleController
                                     (from g in course.Elements("group")
                                         where g.Attribute("id").Value.ToLower().Equals(groupId.ToLower())
                                         select g).ToList().First();
-                                XElement curWeek;
+                                XElement curWeek = new XElement("");
                                 if (week == 1)
                                 {
                                     curWeek = group.Element("even-week");
@@ -682,10 +680,7 @@ namespace ScheduleController
                                 {
                                     curWeek = group.Element("odd-week");
                                 }
-                                else
-                                {
-                                    throw new WeekDoesntExistsException();
-                                }
+
 
                                 group.Add(curWeek);
                                 for (int i = 0; i < shed.Count; i++)
@@ -704,7 +699,7 @@ namespace ScheduleController
                                         para.Add(prepod);
                                         curDay.Add(para);
                                     }
-                                }          
+                                }
 
                                 xRoot.Save(schedFile);
                                 XRootReload(ref xRoot);
@@ -733,6 +728,65 @@ namespace ScheduleController
             {
                 throw new UniversityDoesntExistsException();
             }
+        }
+
+        public static void EditUniver(string oldName, string newName)
+        {
+            if (IsUniverExist(oldName))
+            {
+                XElement temp;
+                XElement univer =
+                    (from un in xRoot.Elements("university")
+                        where un.Attribute("name").Value.ToLower() == oldName.ToLower()
+                        select un).ToList().First();
+                univer.Attribute("name").Value = newName;
+                temp = univer;
+                univer.Remove();
+                xRoot.Add(temp);
+                xRoot.Save(schedFile);
+                XRootReload(ref xRoot);
+            }
+            else
+            {
+                throw new UniversityDoesntExistsException();
+            }
+        }
+
+        public static void EditFaculty(string univerName, string oldFacName, string newFacName)
+        {
+            if (IsUniverExist(univerName))
+            {
+                if (IsFacExist(univerName, oldFacName))
+                {
+                    XElement temp;
+                    XElement univer =
+                        (from un in xRoot.Elements("university")
+                            where un.Attribute("name").Value.ToLower().Equals(univerName.ToLower())
+                            select un).ToList().First();
+                    XElement faculty =
+                        (from f in univer.Elements("faculty")
+                            where f.Attribute("name").Value.ToLower().Equals(oldFacName.ToLower())
+                            select f).ToList().First();
+                    faculty.Attribute("name").Value = newFacName;
+                    temp = faculty;
+                    faculty.Remove();
+                    univer.Add(temp);
+                    xRoot.Save(schedFile);
+                    XRootReload(ref xRoot);
+                }
+                else
+                {
+                    throw new FacultyDoesntExistsException();
+                }
+            }
+            else
+            {
+                throw new UniversityDoesntExistsException();
+            }
+        }
+
+        public static void EditCourse(string univerName, string facName, int oldNum, int newNum)
+        {
         }
     }
 }
