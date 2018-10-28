@@ -3,7 +3,6 @@ using System.Xml.Linq;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using TelegrammAspMvcDotNetCoreBot.Models.ScheduleExceptions.AlreadyExists;
 using TelegrammAspMvcDotNetCoreBot.Models.ScheduleExceptions.DoesntExists;
 using TelegrammAspMvcDotNetCoreBot.Models;
 
@@ -824,6 +823,64 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 	            throw new UniversityDoesntExistsException();
 	        }
 	    }
+	    public static void EditGroup(string univerName, string facName, int num, string oldGroupName,
+            string newGroupName)
+        {
+            if (IsUniverExist(univerName))
+            {
+                if (IsFacExist(univerName, facName))
+                {
+                    if (IsCourseExist(univerName, facName, num))
+                    {
+                        if (IsGroupExist(univerName, facName, num, oldGroupName))
+                        {
+                            XElement temp;
+                            XElement univer =
+                                (from un in xRoot.Elements("university")
+                                    where un.Attribute("name").Value.ToLower().Equals(univerName.ToLower())
+                                    select un).ToList().First();
+                            XElement faculty =
+                                (from f in univer.Elements("faculty")
+                                    where f.Attribute("name").Value.ToLower().Equals(facName.ToLower())
+                                    select f).ToList().First();
+
+                            XElement course =
+                                (from c in faculty.Elements("course")
+                                    where c.Attribute("num").Value.ToString().Equals(num.ToString())
+                                    select c).ToList().First();
+
+                            XElement group =
+                                (from g in course.Elements("group")
+                                    where g.Attribute("id").Value.ToLower().Equals(oldGroupName.ToLower())
+                                    select g).ToList().First();
+
+                            group.Attribute("id").Value = newGroupName;
+                            temp = group;
+                            group.Remove();
+                            course.Add(temp);
+                            xRoot.Save(schedFile);
+                            XRootReload(ref xRoot);
+                        }
+                        else
+                        {
+                            throw new GroupDoesntExistsException();
+                        }
+                    }
+                    else
+                    {
+                        throw new CourseDoesntExistsException();
+                    }
+                }
+                else
+                {
+                    throw new FacultyDoesntExistsException();
+                }
+            }
+            else
+            {
+                throw new UniversityDoesntExistsException();
+            }
+        }
         
     }
 }
