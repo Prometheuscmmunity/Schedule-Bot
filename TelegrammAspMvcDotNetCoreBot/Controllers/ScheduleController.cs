@@ -786,9 +786,44 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
             }
         }
 
-        public static void EditCourse(string univerName, string facName, int oldNum, int newNum)
-        {
-        }
-        }
+	    public static void EditCourse(string univerName, string facName, int oldNum, int newNum)
+	    {
+	        if (IsUniverExist(univerName))
+	        {
+	            if (IsFacExist(univerName, facName))
+	            {
+	                XElement temp;
+	                XElement univer =
+	                    (from un in xRoot.Elements("university")
+	                        where un.Attribute("name").Value.ToLower().Equals(univerName.ToLower())
+	                        select un).ToList().First();
+	                XElement faculty =
+	                    (from f in univer.Elements("faculty")
+	                        where f.Attribute("name").Value.ToLower().Equals(facName.ToLower())
+	                        select f).ToList().First();
+
+	                XElement course =
+	                    (from c in faculty.Elements("course")
+	                        where c.Attribute("num").Value.ToString().Equals(oldNum.ToString())
+	                        select c).ToList().First();
+                    
+	                course.Attribute("num").Value = newNum.ToString();
+	                temp = course;
+	                course.Remove();
+	                faculty.Add(temp);
+	                xRoot.Save(schedFile);
+	                XRootReload(ref xRoot);
+	            }
+	            else
+	            {
+	                throw new FacultyDoesntExistsException();
+	            }
+	        }
+	        else
+	        {
+	            throw new UniversityDoesntExistsException();
+	        }
+	    }
+        
     }
 }
