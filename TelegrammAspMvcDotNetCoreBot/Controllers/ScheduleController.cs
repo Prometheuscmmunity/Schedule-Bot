@@ -881,6 +881,189 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                 throw new UniversityDoesntExistsException();
             }
         }
+	    
+	    public static void EditScheduleDay(string univerName, string facName, int num, string groupId, int week, int day,
+            List<Para> shed)
+        {
+            if (IsUniverExist(univerName))
+            {
+                if (IsFacExist(univerName, facName))
+                {
+                    if (IsCourseExist(univerName, facName, num))
+                    {
+                        if (IsGroupExist(univerName, facName, num, groupId))
+                        {
+                            if (IsWeekExist(univerName, facName, num, groupId, week))
+                            {
+                                XElement univer =
+                                    (from un in xRoot.Elements("university")
+                                        where un.Attribute("name").Value.ToLower().Equals(univerName.ToLower())
+                                        select un).ToList().First();
+                                XElement fac =
+                                    (from f in univer.Elements("faculty")
+                                        where f.Attribute("name").Value.ToLower().Equals(facName.ToLower())
+                                        select f).ToList().First();
+
+                                XElement course =
+                                    (from c in fac.Elements("course")
+                                        where c.Attribute("num").Value.ToLower().Equals(num.ToString())
+                                        select c).ToList().First();
+                                XElement group =
+                                    (from g in course.Elements("group")
+                                        where g.Attribute("id").Value.ToLower().Equals(groupId.ToLower())
+                                        select g).ToList().First();
+                                XElement curWeek = new XElement("a");
+                                if (week == 1)
+                                {
+                                    curWeek = group.Element("even-week");
+                                }
+                                else if (week == 2)
+                                {
+                                    curWeek = group.Element("odd-week");
+                                }
+
+                                XElement curDay = curWeek.Element(weekDays[day-1]);
+                                curDay.RemoveAll();
+                                XElement tmp = curDay;
+                                curDay.Remove();
+                                    
+                                for (int i = 0; i < shed.Count; i++)
+                                {
+                                    XElement para = new XElement($"para{i + 1}");
+                                    para.Value = shed[i].name;
+                                    XAttribute time = new XAttribute("time", shed[i].time);
+                                    XAttribute room = new XAttribute("room", shed[i].room);
+                                    XAttribute prepod = new XAttribute("prepod", shed[i].prepod);
+                                    para.Add(time);
+                                    para.Add(room);
+                                    para.Add(prepod);
+                                    tmp.Add(para);
+                                }
+
+                                curWeek.Add(tmp);
+                                xRoot.Save(schedFile);
+                                XRootReload(ref xRoot);
+                            }
+                            else
+                            {
+                                throw new WeekDoesntExistsException();
+                            }
+                        }
+                        else
+                        {
+                            throw new GroupDoesntExistsException();
+                        }
+                    }
+                    else
+                    {
+                        throw new CourseDoesntExistsException();
+                    }
+                }
+                else
+                {
+                    throw new FacultyDoesntExistsException();
+                }
+            }
+            else
+            {
+                throw new UniversityDoesntExistsException();
+            }
+        }
+
+        public static void EditScheduleWeek(string univerName, string facName, int num, string groupId, int week,
+            List<List<Para>> shed)
+        {
+            if (IsUniverExist(univerName))
+            {
+                if (IsFacExist(univerName, facName))
+                {
+                    if (IsCourseExist(univerName, facName, num))
+                    {
+                        if (IsGroupExist(univerName, facName, num, groupId))
+                        {
+                            if (IsWeekExist(univerName, facName, num, groupId, week))
+                            {
+                                XElement univer =
+                                    (from un in xRoot.Elements("university")
+                                        where un.Attribute("name").Value.ToLower().Equals(univerName.ToLower())
+                                        select un).ToList().First();
+                                XElement fac =
+                                    (from f in univer.Elements("faculty")
+                                        where f.Attribute("name").Value.ToLower().Equals(facName.ToLower())
+                                        select f).ToList().First();
+
+                                XElement course =
+                                    (from c in fac.Elements("course")
+                                        where c.Attribute("num").Value.ToLower().Equals(num.ToString())
+                                        select c).ToList().First();
+                                XElement group =
+                                    (from g in course.Elements("group")
+                                        where g.Attribute("id").Value.ToLower().Equals(groupId.ToLower())
+                                        select g).ToList().First();
+                                XElement curWeek = new XElement("temp");
+                                if (week == 1)
+                                {
+                                    curWeek = group.Element("even-week");
+                                }
+                                else if (week == 2)
+                                {
+                                    curWeek = group.Element("odd-week");
+                                }
+
+                                XElement tmp;
+                                
+                                for (int i = 0; i < shed.Count; i++)
+                                {
+                                    XElement curDay = curWeek.Element(weekDays[i]);
+                                    curDay.RemoveAll();
+                                    tmp = curDay;
+                                    curDay.Remove();
+                                    
+                                    for (int j = 0; j < shed[i].Count; j++)
+                                    {
+                                        XElement para = new XElement($"para{j + 1}");
+                                        para.Value = shed[i][j].name;
+                                        XAttribute time = new XAttribute("time", shed[i][j].time);
+                                        XAttribute room = new XAttribute("room", shed[i][j].room);
+                                        XAttribute prepod = new XAttribute("prepod", shed[i][j].prepod);
+                                        para.Add(time);
+                                        para.Add(room);
+                                        para.Add(prepod);
+                                        tmp.Add(para);
+                                    }
+
+                                    curWeek.Add(tmp);
+
+                                }
+
+                                xRoot.Save(schedFile);
+                                XRootReload(ref xRoot);
+                            }
+                            else
+                            {
+                                throw new WeekDoesntExistsException();
+                            }
+                        }
+                        else
+                        {
+                            throw new GroupDoesntExistsException();
+                        }
+                    }
+                    else
+                    {
+                        throw new CourseDoesntExistsException();
+                    }
+                }
+                else
+                {
+                    throw new FacultyDoesntExistsException();
+                }
+            }
+            else
+            {
+                throw new UniversityDoesntExistsException();
+            }
+        }
         
     }
 }
