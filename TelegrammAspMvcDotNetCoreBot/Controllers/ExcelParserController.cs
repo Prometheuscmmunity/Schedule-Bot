@@ -178,9 +178,9 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
 				while (GetCellValue(FileName, course.ToString() + " курс", C(group) + "1") != "")
 				{
+					if (GetCellValue(FileName, course.ToString() + " курс", C(group) + "1") == "") break;
+
 					ScheduleController.AddGroup("мисис", FileName, course, GetCellValue(FileName, course.ToString() + " курс", C(group) + "1"));
-					ScheduleController.AddWeek("мисис", FileName, course, GetCellValue(FileName, course.ToString() + " курс", C(group) + "1"), 1);
-					ScheduleController.AddWeek("мисис", FileName, course, GetCellValue(FileName, course.ToString() + " курс", C(group) + "1"), 2);
 
 					List<List<Para>> week1 = new List<List<Para>>();
 					List<List<Para>> week2 = new List<List<Para>>();

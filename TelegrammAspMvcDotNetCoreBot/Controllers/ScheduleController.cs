@@ -15,31 +15,26 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
         public static string schedFile = "un.xml";
 
 
-        private static XDocument xDoc;
+		public static XDocument xDoc = CheckFile();
 
-        private static XElement xRoot;
+		public static XElement xRoot = xDoc.Root;
 
         private static readonly string[] weekDays =
-            {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday"};
+            {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
 
-        private static void Main(string[] args)
-        {
-            CheckFile(schedFile);
-            AddGroup("мисис", "инфа",1,"idk");
-        }
+        public static XDocument CheckFile()
+		{
+			try
+			{
+				XDocument xDoc = XDocument.Load("un.xml");
+			}
+			catch (FileNotFoundException)
+			{
+				XDocument xDoc = new XDocument(new XElement("universities", ""));
+				xDoc.Save("un.xml");
+			}
 
-        public static void CheckFile(string fileUrl)
-        {
-            if (!File.Exists(fileUrl))
-            {
-                XElement root = new XElement("universities");
-                XDocument docTemp = new XDocument();
-                docTemp.Add(root);
-                docTemp.Save(fileUrl);
-            }
-
-            xDoc = XDocument.Load(fileUrl);
-            xRoot = xDoc.Root;
+            return XDocument.Load("un.xml");
         }
 
         public static void XRootReload(ref XElement XRoot)
@@ -50,7 +45,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
         public static bool IsUniverExist(string name)
         {
-            return xRoot.Elements("university").Any(s => s.Attribute("name").Value.ToLower() == name.ToLower());
+			return xRoot.Elements("university").Any(s => s.Attribute("name").Value.ToLower() == name.ToLower());
         }
 
         public static bool IsFacExist(string univerName, string facName)
@@ -671,8 +666,10 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                                     (from g in course.Elements("group")
                                         where g.Attribute("id").Value.ToLower().Equals(groupId.ToLower())
                                         select g).ToList().First();
-                                XElement curWeek = new XElement("");
-                                if (week == 1)
+
+                                XElement curWeek = new XElement("test");
+
+								if (week == 1)
                                 {
                                     curWeek = group.Element("even-week");
                                 }
