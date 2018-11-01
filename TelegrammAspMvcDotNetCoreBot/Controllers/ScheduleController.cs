@@ -15,25 +15,26 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
         public static string schedFile = "un.xml";
 
 
-        private static XDocument xDoc;
+		public static XDocument xDoc = CheckFile();
 
-        private static XElement xRoot;
+		public static XElement xRoot = xDoc.Root;
 
         private static readonly string[] weekDays =
-            {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday"};
+            {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
 
-        public static void CheckFile(string fileUrl)
-        {
-            if (!File.Exists(fileUrl))
-            {
-                XElement root = new XElement("universities");
-                XDocument docTemp = new XDocument();
-                docTemp.Add(root);
-                docTemp.Save(fileUrl);
-            }
+        public static XDocument CheckFile()
+		{
+			try
+			{
+				XDocument xDoc = XDocument.Load("un.xml");
+			}
+			catch (FileNotFoundException)
+			{
+				XDocument xDoc = new XDocument(new XElement("universities", ""));
+				xDoc.Save("un.xml");
+			}
 
-            xDoc = XDocument.Load(fileUrl);
-            xRoot = xDoc.Root;
+            return XDocument.Load("un.xml");
         }
 
         public static void XRootReload(ref XElement XRoot)
@@ -44,7 +45,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
         public static bool IsUniverExist(string name)
         {
-            return xRoot.Elements("university").Any(s => s.Attribute("name").Value.ToLower() == name.ToLower());
+			return xRoot.Elements("university").Any(s => s.Attribute("name").Value.ToLower() == name.ToLower());
         }
 
         public static bool IsFacExist(string univerName, string facName)
@@ -722,7 +723,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                 throw new UniversityDoesntExistsException();
             }
         }
-	    
+
         public static void EditUniver(string oldName, string newName)
         {
             if (IsUniverExist(oldName))
@@ -816,7 +817,6 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 	            throw new UniversityDoesntExistsException();
 	        }
 	    }
-	    
 	    public static void EditGroup(string univerName, string facName, int num, string oldGroupName,
             string newGroupName)
         {
