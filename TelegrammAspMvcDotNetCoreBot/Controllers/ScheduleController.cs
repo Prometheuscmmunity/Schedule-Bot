@@ -15,26 +15,25 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
         public static string schedFile = "un.xml";
 
 
-		public static XDocument xDoc = CheckFile();
+        private static XDocument xDoc;
 
-		public static XElement xRoot = xDoc.Root;
+        private static XElement xRoot;
 
         private static readonly string[] weekDays =
-            {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
+            {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday"};
 
-        public static XDocument CheckFile()
-		{
-			try
-			{
-				XDocument xDoc = XDocument.Load("un.xml");
-			}
-			catch (FileNotFoundException)
-			{
-				XDocument xDoc = new XDocument(new XElement("universities", ""));
-				xDoc.Save("un.xml");
-			}
+        public static void CheckFile(string fileUrl)
+        {
+            if (!File.Exists(fileUrl))
+            {
+                XElement root = new XElement("universities");
+                XDocument docTemp = new XDocument();
+                docTemp.Add(root);
+                docTemp.Save(fileUrl);
+            }
 
-            return XDocument.Load("un.xml");
+            xDoc = XDocument.Load(fileUrl);
+            xRoot = xDoc.Root;
         }
 
         public static void XRootReload(ref XElement XRoot)
@@ -45,7 +44,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
         public static bool IsUniverExist(string name)
         {
-			return xRoot.Elements("university").Any(s => s.Attribute("name").Value.ToLower() == name.ToLower());
+            return xRoot.Elements("university").Any(s => s.Attribute("name").Value.ToLower() == name.ToLower());
         }
 
         public static bool IsFacExist(string univerName, string facName)
@@ -580,7 +579,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                                     (from g in course.Elements("group")
                                         where g.Attribute("id").Value.ToLower().Equals(groupId.ToLower())
                                         select g).ToList().First();
-                                XElement curWeek = new XElement("");
+                                XElement curWeek = new XElement("tmp");
                                 if (week == 1)
                                 {
                                     curWeek = group.Element("even-week");
@@ -590,7 +589,6 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                                     curWeek = group.Element("odd-week");
                                 }
 
-                                group.Add(curWeek);
                                 XElement curDay = new XElement(weekDays[day - 1]);
                                 curWeek.Add(curDay);
 
@@ -666,10 +664,8 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                                     (from g in course.Elements("group")
                                         where g.Attribute("id").Value.ToLower().Equals(groupId.ToLower())
                                         select g).ToList().First();
-
-                                XElement curWeek = new XElement("test");
-
-								if (week == 1)
+                                XElement curWeek = new XElement("tmp");
+                                if (week == 1)
                                 {
                                     curWeek = group.Element("even-week");
                                 }
@@ -679,11 +675,10 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                                 }
 
 
-                                group.Add(curWeek);
                                 for (int i = 0; i < shed.Count; i++)
                                 {
                                     XElement curDay = new XElement(weekDays[i]);
-                                    curWeek.Add(curDay);
+                                    
                                     for (int j = 0; j < shed[i].Count; j++)
                                     {
                                         XElement para = new XElement($"para{j + 1}");
@@ -696,6 +691,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                                         para.Add(prepod);
                                         curDay.Add(para);
                                     }
+                                    curWeek.Add(curDay);
                                 }
 
                                 xRoot.Save(schedFile);
@@ -726,7 +722,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                 throw new UniversityDoesntExistsException();
             }
         }
-
+	    
         public static void EditUniver(string oldName, string newName)
         {
             if (IsUniverExist(oldName))
@@ -820,6 +816,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 	            throw new UniversityDoesntExistsException();
 	        }
 	    }
+	    
 	    public static void EditGroup(string univerName, string facName, int num, string oldGroupName,
             string newGroupName)
         {
