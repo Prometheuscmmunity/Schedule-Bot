@@ -10,16 +10,20 @@ using System.IO.Packaging;
 using TelegrammAspMvcDotNetCoreBot.Models;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using OfficeOpenXml;
-using OfficeOpenXml.Table;
+using NPOI.XSSF.UserModel;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
 
 namespace TelegrammAspMvcDotNetCoreBot.Controllers
 {
-    public static class ExcelParserController
+	public static class ExcelParserController
 	{
 
 		private static string C(int number)
 		{
+
+
+
 			string result = "";
 
 			if (number > 0)
@@ -83,7 +87,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 			string value = null;
 
 			// Open the spreadsheet document for read-only access.
-			using (var document = SpreadsheetDocument.Open("0мисис.xlsx", false))
+			using (var document = SpreadsheetDocument.Open(fileName + ".xlsx", false))
 			{
 				// Retrieve a reference to the workbook part.
 				WorkbookPart wbPart = document.WorkbookPart;
@@ -162,60 +166,211 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 			return value;
 		}
 
-		public static void Read(string FileName)
+		public static void ReadXls(string FileName)
 		{
-			ScheduleController.CheckFile();
+			//ScheduleController.CheckFile();
+
+			ScheduleController.Unit();
+
 			ScheduleController.AddUniversity("мисис");
 			ScheduleController.AddFaculty("мисис", FileName);
+			ScheduleController.AddFaculty("мисис", "мисис");
+			ScheduleController.AddCourse("мисис", "мисис", "мисис");
+			ScheduleController.AddGroup("мисис", "мисис", "мисис", "мисис");
 
-			for (int course = 1; course < 5; course++)
+			ScheduleController.AddScheduleWeek("мисис", "мисис", "мисис", "мисис", "мисис");
+
+			HSSFWorkbook hssfwb;
+			using (FileStream file = new FileStream(@"" + FileName + ".xls", FileMode.Open, FileAccess.Read))
 			{
-				ScheduleController.AddCourse("мисис", FileName, course);
+				hssfwb = new HSSFWorkbook(file);
+			}
 
-				string value = GetCellValue(FileName, course.ToString() + " курс", C(1) + "1");
+			for (int course = 1; course < 7; course++)
+			{
+
+				if (hssfwb.GetSheet(course + " курс") == null)
+					break;
+
+				ScheduleController.AddCourse("мисис", FileName, course.ToString());
+
+				ISheet sheet = hssfwb.GetSheet(course + " курс");
 
 				int group = 4;
+				//int myFlag = 0;
 
-				while (GetCellValue(FileName, course.ToString() + " курс", C(group) + "1") != "")
+				while (sheet.GetRow(1).GetCell(group - 1) != null)
 				{
-					if (GetCellValue(FileName, course.ToString() + " курс", C(group) + "1") == "") break;
 
-					ScheduleController.AddGroup("мисис", FileName, course, GetCellValue(FileName, course.ToString() + " курс", C(group) + "1"));
+					if (sheet.GetRow(1).GetCell(group - 1).NumericCellValue.ToString() == "1")
+					{
+						ScheduleController.AddGroup("мисис", FileName, course.ToString(), sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 1 подгруппа");
+					}
+					else if (sheet.GetRow(1).GetCell(group - 1).NumericCellValue.ToString() == "2")
+					{
+						if (sheet.GetRow(0).GetCell(group - 1).ToString() == "")
+							ScheduleController.AddGroup("мисис", FileName, course.ToString(), sheet.GetRow(0).GetCell(group - 3).StringCellValue + " 2 подгруппа");
+						else
+							ScheduleController.AddGroup("мисис", FileName, course.ToString(), sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 2 подгруппа");
+					}
+					else
+					{
+							ScheduleController.AddGroup("мисис", FileName, course.ToString(), sheet.GetRow(0).GetCell(group - 1).StringCellValue);
+					}
 
 					List<List<Para>> week1 = new List<List<Para>>();
 					List<List<Para>> week2 = new List<List<Para>>();
 
-					for (int podg = group + 2; podg <= group + 2; podg += 2)
-					//	for (int podg = group; podg <= group + 2; podg += 2)
+					for (int dayofweek = 3; dayofweek < 100; dayofweek += 14)
 					{
-						for (int dayofweek = 3; dayofweek < 100; dayofweek += 14)
+						//Console.WriteLine(ObjWorkSheet.Cells[dayofweek - 2 / 14, 1].ToString());
+
+						List<Para> day1 = new List<Para>();
+						List<Para> day2 = new List<Para>();
+
+						for (int para = dayofweek; para < dayofweek + 14; para += 2)
 						{
-							//Console.WriteLine(ObjWorkSheet.Cells[dayofweek - 2 / 14, 1].ToString());
+							if (sheet.GetRow(para - 1).GetCell(group - 1) != null)
+								if (sheet.GetRow(para - 1).GetCell(group - 1).StringCellValue != "")
+									day1.Add(new Para(name: sheet.GetRow(para - 1).GetCell(group - 1).StringCellValue, time: sheet.GetRow(para - 1).GetCell(2).StringCellValue, room: sheet.GetRow(para - 1).GetCell(group).StringCellValue, prepod: ""));
 
-							List<Para> day1 = new List<Para>();
-							List<Para> day2 = new List<Para>();
-
-							for (int para = dayofweek; para < dayofweek + 14; para += 2)
-							{
-								if (GetCellValue(FileName, course.ToString() + " курс", C(podg) + para.ToString()) != "")
-									day1.Add(new Para(name: GetCellValue(FileName, course.ToString() + " курс", C(podg) + para.ToString()), time: "", room: "", prepod: ""));
-								
-								if (GetCellValue(FileName, course.ToString() + " курс", C(podg) + (para + 1).ToString()) != "")
-									day2.Add(new Para(name: GetCellValue(FileName, course.ToString() + " курс", C(podg) + (para + 1).ToString()), time: "", room: "", prepod: ""));
-							}
-
-							week1.Add(day1);
-							week2.Add(day2);
-
-							ScheduleController.AddSheduleWeek("мисис", FileName, course, GetCellValue(FileName, course.ToString() + " курс", C(group) + "1"), 1, week1);
-							ScheduleController.AddSheduleWeek("мисис", FileName, course, GetCellValue(FileName, course.ToString() + " курс", C(group) + "1"), 2, week2);
-
+							if (sheet.GetRow(para).GetCell(group - 1) != null)
+								if (sheet.GetRow(para).GetCell(group - 1).StringCellValue != "")
+									day2.Add(new Para(name: sheet.GetRow(para).GetCell(group - 1).StringCellValue, time: sheet.GetRow(para - 1).GetCell(2).StringCellValue, room: sheet.GetRow(para).GetCell(group).StringCellValue, prepod: ""));
 						}
 
+						week1.Add(day1);
+						week2.Add(day2);
 
 					}
 
-					group += 4;
+					if (sheet.GetRow(1).GetCell(group - 1).NumericCellValue.ToString() == "1")
+					{
+						//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 1 подгруппа", 1, week1);
+						//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 1 подгруппа", 2, week2);
+					}
+					else if (sheet.GetRow(1).GetCell(group - 1).NumericCellValue.ToString() == "2")
+					{
+						if (sheet.GetRow(0).GetCell(group - 1).ToString() == "")
+						{
+							//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 3).StringCellValue + " 2 подгруппа", 1, week1);
+							//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 3).StringCellValue + " 2 подгруппа", 2, week2);
+						}
+						else
+						{
+							//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 2 подгруппа", 1, week1);
+							//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 2 подгруппа", 2, week2);
+						}
+					}
+					else
+					{
+						//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue, 1, week1);
+						//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue, 2, week2);
+					}
+
+					group += 2;
+				}
+			}
+		}
+
+		public static void ReadXlsx(string FileName)
+		{
+			//ScheduleController.CheckFile();
+
+			ScheduleController.Unit();
+
+			ScheduleController.AddUniversity("мисис");
+			ScheduleController.AddFaculty("мисис", FileName);
+
+
+			XSSFWorkbook hssfwb;
+			using (FileStream file = new FileStream(@"" + FileName + ".xlsx", FileMode.Open, FileAccess.Read))
+			{
+				hssfwb = new XSSFWorkbook(file);
+			}
+
+			for (int course = 1; course < 7; course++)
+			{
+
+				if (hssfwb.GetSheet(course + " курс") == null)
+					break;
+				ScheduleController.AddCourse("мисис", FileName, course.ToString());
+
+				ISheet sheet = hssfwb.GetSheet(course + " курс");
+
+				int group = 4;
+				//int myFlag = 0;
+
+				while (sheet.GetRow(2 - 1).GetCell(group - 1) != null)
+				{
+
+					if (sheet.GetRow(1).GetCell(group - 1).NumericCellValue.ToString() == "1")
+					{
+						ScheduleController.AddGroup("мисис", FileName, course.ToString(), sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 1 подгруппа");
+					}
+					else if (sheet.GetRow(1).GetCell(group - 1).NumericCellValue.ToString() == "2")
+					{
+						if (sheet.GetRow(0).GetCell(group - 1).ToString() == "")
+							ScheduleController.AddGroup("мисис", FileName, course.ToString(), sheet.GetRow(0).GetCell(group - 3).StringCellValue + " 2 подгруппа");
+						else
+							ScheduleController.AddGroup("мисис", FileName, course.ToString(), sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 2 подгруппа");
+					}
+					else
+					{
+						ScheduleController.AddGroup("мисис", FileName, course.ToString(), sheet.GetRow(0).GetCell(group - 1).StringCellValue);
+					}
+
+					List<List<Para>> week1 = new List<List<Para>>();
+					List<List<Para>> week2 = new List<List<Para>>();
+
+					for (int dayofweek = 3; dayofweek < 100; dayofweek += 14)
+					{
+						//Console.WriteLine(ObjWorkSheet.Cells[dayofweek - 2 / 14, 1].ToString());
+
+						List<Para> day1 = new List<Para>();
+						List<Para> day2 = new List<Para>();
+
+						for (int para = dayofweek; para < dayofweek + 14; para += 2)
+						{
+							if (sheet.GetRow(para - 1).GetCell(group - 1) != null)
+								if (sheet.GetRow(para - 1).GetCell(group - 1).StringCellValue != "")
+									day1.Add(new Para(name: sheet.GetRow(para - 1).GetCell(group - 1).StringCellValue, time: sheet.GetRow(para - 1).GetCell(3 - 1).StringCellValue, room: sheet.GetRow(para - 1).GetCell(group - 1 + 1).StringCellValue, prepod: ""));
+
+							if (sheet.GetRow(para - 1 + 1).GetCell(group - 1) != null)
+								if (sheet.GetRow(para - 1 + 1).GetCell(group - 1).StringCellValue != "")
+									day2.Add(new Para(name: sheet.GetRow(para - 1 + 1).GetCell(group - 1).StringCellValue, time: sheet.GetRow(para - 1).GetCell(3 - 1).StringCellValue, room: sheet.GetRow(para).GetCell(group - 1 + 1).StringCellValue, prepod: ""));
+						}
+
+						week1.Add(day1);
+						week2.Add(day2);
+
+					}
+
+					if (sheet.GetRow(1).GetCell(group - 1).NumericCellValue.ToString() == "1")
+					{
+						//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 1 подгруппа", 1, week1);
+						//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 1 подгруппа", 2, week2);
+					}
+					else if (sheet.GetRow(1).GetCell(group - 1).NumericCellValue.ToString() == "2")
+					{
+						if (sheet.GetRow(0).GetCell(group - 1).ToString() == "")
+						{
+							//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 3).StringCellValue + " 2 подгруппа", 1, week1);
+							//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 3).StringCellValue + " 2 подгруппа", 2, week2);
+						}
+						else
+						{
+							//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 2 подгруппа", 1, week1);
+							//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue + " 2 подгруппа", 2, week2);
+						}
+					}
+					else
+					{
+						//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue, 1, week1);
+						//ScheduleController.AddSheduleWeek("мисис", FileName, course, sheet.GetRow(0).GetCell(group - 1).StringCellValue, 2, week2);
+					}
+
+					group += 2;
 				}
 			}
 		}

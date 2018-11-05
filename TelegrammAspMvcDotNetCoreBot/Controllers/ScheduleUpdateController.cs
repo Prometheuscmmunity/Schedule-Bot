@@ -2,40 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CsQuery;
 using System.IO;
 using System.Net;
 using System.Text;
 using TelegrammAspMvcDotNetCoreBot.Controllers;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft;
 
 namespace TelegrammAspMvcDotNetCoreBot.Controllers
 {
-    public static class ScheduleUpdateController
+	public static class ScheduleUpdateController
 	{
 		//тест
 		public static void Update()
 		{
-			string mainUrl = "http://misis.ru/students/";
 
-			CQ cq = CQ.Create(GetResponse(mainUrl));
+			Download("http://misis.ru/files/-/b4052b5047b2fc91dc690229330036d2/%D0%98%D0%A2%D0%90%D0%A1%D0%A3.xls", "ИТАСУ");
+			//Download("http://misis.ru/files/-/06c06d68c54dbf107f8b4de7361dd909/%D0%9C%D0%93%D0%98.xlsx", "МГИ");
+			//Download("http://misis.ru/files/-/d2af8541a9ded82879ef11c1e11d3d7a/%D0%98%D0%9D%D0%9C%D0%B8%D0%9D.xlsx", "ИНМиН");
+			//Download("http://misis.ru/files/-/f7a613220ae7811b69b14f06f8847b80/%D0%98%D0%AD%D0%BA%D0%BE%D0%A2%D0%B5%D1%85.xls", "ЭкоТех");
+			//Download("http://misis.ru/files/-/deddde8e0f846e3302deb39450d2c379/%D0%98%D0%AD%D0%A3%D0%9F%D0%9F.xls", "ЭУПП");
+			//UserController.CheckDoc();
+			//Download("http://misis.ru/files/-/90e4e6635500e925dadf16da8ce53c5f/%D0%98%D0%91%D0%9E.xls", "ИБО");
 
-			string[] files = new string[10];
-			int count = 0;
 
-			foreach (IDomObject obj in cq.Find(".XLSX a"))
-			{
-				//Download("http://misis.ru" + obj.GetAttribute("href"), count + "мисис.xlsx");
 
-				count++;
-			}
+			//ExcelParserController.Read("0мисис.xlsx");
 
-			foreach (IDomObject obj in cq.Find(".XLS a"))
-			{
-				//Download("http://misis.ru" + obj.GetAttribute("href"), count + "мисис.xls");
-				count++;
-			}
-
-			ExcelParserController.Read("0мисис.xlsx");
 		}
 
 		static string GetResponse(string uri)
@@ -60,23 +53,20 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
 		static void Download(string url, string name)
 		{
-			HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
-			HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-			Stream stream = resp.GetResponseStream();
-			FileStream file = new FileStream(@"" + name, FileMode.Create, FileAccess.Write);
-			StreamWriter write = new StreamWriter(file);
-			int b;
-			for (int i = 0; ; i++)
+
+			WebClient wc = new WebClient();
+
+			if (url[url.Length - 1] == 'x')
 			{
-				b = stream.ReadByte();
-				if (b == -1) break;
-				write.Write((char)b);
+				wc.DownloadFile(url, name + ".xlsx");
+				ExcelParserController.ReadXlsx(name);
 			}
-			write.Close();
-			file.Close();
+			else
+			{
+				wc.DownloadFile(url, name + ".xls");
+				ExcelParserController.ReadXls(name);
+			}
 
-			ExcelParserController.Read(name);
 		}
-
 	}
 }

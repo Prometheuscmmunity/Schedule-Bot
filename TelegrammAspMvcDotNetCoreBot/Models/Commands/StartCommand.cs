@@ -22,17 +22,25 @@ namespace TelegrammAspMvcDotNetCoreBot.Models.Commands
 
         public override async Task Execute(Message message, TelegramBotClient botClient)
 		{
-			string[][] buttons = new string[][]
-			{
-				new string[] {"МИСиС"}
-			};
+			//List<string> un = ScheduleController.GetUniversities();
+			
+			//string[][] unn = new string[un.ToList().Count][];
+			
+			int count = 0;
+			//foreach (string item in un)
+			//{
+			//	unn[count] = new string[] { item };
+			//	count++;
+			//}
 
 			var chatId = message.Chat.Id;
 
-			UserController.CreateUser(chatId);
-
+			if (!UserController.CheckUser(chatId))
+				UserController.CreateUser(chatId);
+			else
+				UserController.RecreateUser(chatId);
 			//await botClient.SendTextMessageAsync(chatId, "Hallo I'm ASP.NET Core Bot and I made by Mr.Robot", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
-			await botClient.SendTextMessageAsync(chatId, "Привет, выбери свой университет", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown, replyMarkup: (Telegram.Bot.Types.ReplyMarkups.IReplyMarkup) KeybordController.GetKeyboard(buttons, 1));
+			//await botClient.SendTextMessageAsync(chatId, "Привет, выбери свой университет", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown, replyMarkup: (Telegram.Bot.Types.ReplyMarkups.IReplyMarkup) KeybordController.GetKeyboard(unn, count));
 		}
 	}
 }
