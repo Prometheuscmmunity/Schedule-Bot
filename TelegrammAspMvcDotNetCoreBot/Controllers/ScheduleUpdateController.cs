@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using TelegrammAspMvcDotNetCoreBot.Controllers;
+using TelegrammAspMvcDotNetCoreBot.Models;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft;
 
@@ -18,6 +19,9 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 		{
 
 			Download("http://misis.ru/files/-/b4052b5047b2fc91dc690229330036d2/%D0%98%D0%A2%D0%90%D0%A1%D0%A3.xls", "ИТАСУ");
+
+			//ScheduleDay schedule = ScheduleController.GetSchedule("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа", 1, 3);
+
 			//Download("http://misis.ru/files/-/06c06d68c54dbf107f8b4de7361dd909/%D0%9C%D0%93%D0%98.xlsx", "МГИ");
 			//Download("http://misis.ru/files/-/d2af8541a9ded82879ef11c1e11d3d7a/%D0%98%D0%9D%D0%9C%D0%B8%D0%9D.xlsx", "ИНМиН");
 			//Download("http://misis.ru/files/-/f7a613220ae7811b69b14f06f8847b80/%D0%98%D0%AD%D0%BA%D0%BE%D0%A2%D0%B5%D1%85.xls", "ЭкоТех");

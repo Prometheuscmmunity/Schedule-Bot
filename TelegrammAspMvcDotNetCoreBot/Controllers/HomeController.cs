@@ -21,15 +21,18 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
 		public IActionResult Index()
         {
-			University un = new University();
-			un.Name = "rtre";
+			//ScheduleDay schedule = ScheduleController.GetSchedule("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа", 1, 3);
 
-			db.Universities.Add(un);
+			//List<Lesson> listPar = schedule.Lesson;
 
-			db.SaveChanges();
+			string result = "";
+			foreach (Lesson item in ScheduleController.GetSchedule("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа", 1, 3).Lesson)
+			{
+				result += item.Time + "\n" + item.Name + "\n" + item.Room + "\n\n";
+			}
+			ViewBag.n = result;
 
-			ViewBag.n = db.Universities.Where(n => n.Name == "rtre").FirstOrDefault().Id;
-            return View();
+			return View();
         }
 
         public IActionResult Error()
