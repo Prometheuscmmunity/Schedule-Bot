@@ -33,10 +33,10 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
             }
 
             ViewBag.n = result;
-            HomeWorkController.AddHomeWorkToday("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа",
-                "ДИМА ПРИВЕТ");
+            HomeWorkController.AddHomeWorkTomorrow("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа",
+                "дз на завтра не задано");
 
-            ViewBag.k = HomeWorkController.GetHomeWorkToday("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа");
+            ViewBag.k = HomeWorkController.GetHomeWorkTomorrow("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа");
 
 
             return View();

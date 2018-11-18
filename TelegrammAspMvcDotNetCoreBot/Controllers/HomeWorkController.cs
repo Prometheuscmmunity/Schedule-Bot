@@ -15,27 +15,19 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
         public static void Unit()
         {
             var optionsBuilder = new DbContextOptionsBuilder<MyContext>();
-            optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=test36;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=test37;Trusted_Connection=True;");
             db = new MyContext(optionsBuilder.Options);
         }
 
 
-        public static void AddHomeWork()
-        {
-        }
-
-
-        public static void AddHomeWorkToday(string university, string faculty, string course, string groupName,
+        public static void AddHomeWork(string university, string faculty, string course, string groupName, string date,
             string text)
         {
             if (ScheduleController.IsGroupExist(university, faculty, course, groupName))
             {
                 Group gr = new Group();
 
-                DateTime now = DateTime.Now;
-                string date = now.ToString("d");
-
-                Day d = new Day();
+                HomeWork d = new HomeWork();
                 d.Date = date;
                 d.HomeWorkText = text;
 
@@ -52,22 +44,26 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
             }
         }
 
-        public static void AddHomeWorkTomorrow()
+
+        public static void AddHomeWorkToday(string university, string faculty, string course, string groupName,
+            string text)
         {
+            string date = DateTime.Now.ToString("d");
+            AddHomeWork(university, faculty, course, groupName, date, text);
         }
 
-        public static void GetHomeWork()
+        public static void AddHomeWorkTomorrow(string university, string faculty, string course, string groupName,
+            string text)
         {
+            string date = DateTime.Now.AddDays(1).ToString("d");
+            AddHomeWork(university, faculty, course, groupName, date, text);
         }
 
-        public static string GetHomeWorkToday(string university, string faculty, string course, string groupName)
+        public static string GetHomeWork(string university, string faculty, string course, string groupName, string date)
         {
             if (ScheduleController.IsGroupExist(university, faculty, course, groupName))
             {
-                DateTime now = DateTime.Now;
-                string date = now.ToString("d");
-
-                Day gr = new Day();
+                HomeWork gr = new HomeWork();
                 gr = (from kl in db.Days
                     where kl.Date == date && kl.Group.Name == groupName && kl.Group.Course.Name == course &&
                           kl.Group.Course.Facultie.Name == faculty &&
@@ -81,12 +77,22 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
             return "";
         }
 
-        public static void GetHomeWorkTomorrow()
+        public static string GetHomeWorkToday(string university, string faculty, string course, string groupName)
         {
+            string date = DateTime.Now.ToString("d");
+            return GetHomeWork(university, faculty, course, groupName, date);
         }
 
-        public static void GetHomeWorkYesterday()
+        public static string GetHomeWorkTomorrow(string university, string faculty, string course, string groupName)
         {
+            string date = DateTime.Now.AddDays(1).ToString("d");
+            return GetHomeWork(university, faculty, course, groupName, date);
+        }
+
+        public static string GetHomeWorkYesterday(string university, string faculty, string course, string groupName)
+        {
+            string date = DateTime.Now.AddDays(-1).ToString("d");
+            return GetHomeWork(university, faculty, course, groupName, date);
         }
     }
 }

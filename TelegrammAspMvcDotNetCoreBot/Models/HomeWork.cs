@@ -1,6 +1,6 @@
 namespace TelegrammAspMvcDotNetCoreBot.Models
 {
-    public class Day
+    public class HomeWork
     {
         public int Id { get; set; }
         public Group Group { get; set; }

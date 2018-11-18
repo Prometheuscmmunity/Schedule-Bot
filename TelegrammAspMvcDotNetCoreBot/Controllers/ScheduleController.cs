@@ -25,7 +25,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 		public static void Unit()
 		{
 			var optionsBuilder = new DbContextOptionsBuilder<MyContext>();
-			optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=mobilesdb2;Trusted_Connection=True;");
+			optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=test37;Trusted_Connection=True;");
 			db = new MyContext(optionsBuilder.Options);
 		}
 
