@@ -2,6 +2,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.Office.Interop.Excel;
 using TelegrammAspMvcDotNetCoreBot.Models;
 using Group = TelegrammAspMvcDotNetCoreBot.Models.Group;
 
@@ -10,8 +11,10 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
     public class HomeWorkController
     {
         static MyContext db;
-        //private static MyContext db = new MyContext(optionsBuilder.Options);
-
+        
+        /// <summary>
+        /// Инициализация базы данных
+        /// </summary>
         public static void Unit()
         {
             var optionsBuilder = new DbContextOptionsBuilder<MyContext>();
@@ -19,7 +22,9 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
             db = new MyContext(optionsBuilder.Options);
         }
 
-
+        /// <summary>
+        /// Добавление добашнего задания на определенный день
+        /// </summary>
         public static void AddHomeWork(string university, string faculty, string course, string groupName, string date,
             string text)
         {
@@ -44,22 +49,28 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Добавление домашшнего задания на сегодня
+        /// </summary>
         public static void AddHomeWorkToday(string university, string faculty, string course, string groupName,
             string text)
         {
             string date = DateTime.Now.ToString("d");
             AddHomeWork(university, faculty, course, groupName, date, text);
         }
-
+        
+        /// <summary>
+        /// Добавление домашнего задания на завтра
+        /// </summary>
         public static void AddHomeWorkTomorrow(string university, string faculty, string course, string groupName,
             string text)
         {
             string date = DateTime.Now.AddDays(1).ToString("d");
             AddHomeWork(university, faculty, course, groupName, date, text);
         }
-
-        public static string GetHomeWork(string university, string faculty, string course, string groupName, string date)
+        
+        public static string GetHomeWork(string university, string faculty, string course, string groupName,
+            string date)
         {
             if (ScheduleController.IsGroupExist(university, faculty, course, groupName))
             {
@@ -70,13 +81,13 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                           kl.Group.Course.Facultie.University.Name == university
                     select kl).FirstOrDefault();
 
-
                 return gr.HomeWorkText;
             }
 
             return "";
         }
 
+        
         public static string GetHomeWorkToday(string university, string faculty, string course, string groupName)
         {
             string date = DateTime.Now.ToString("d");
