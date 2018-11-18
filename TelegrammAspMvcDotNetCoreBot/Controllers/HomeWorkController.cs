@@ -120,7 +120,9 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
                     db.HomeWorks.Remove(h);
                 }
             }
-            
+
+            db.SaveChanges();
+
         }
     }
 }
