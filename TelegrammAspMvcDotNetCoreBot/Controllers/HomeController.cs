@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TelegrammAspMvcDotNetCoreBot.Models;
@@ -26,12 +27,14 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 			//List<Lesson> listPar = schedule.Lesson;
 
 			string result = "";
-			foreach (Lesson item in ScheduleController.GetSchedule("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа", 1, 3).Lesson)
+	        var k = ScheduleController.GetSchedule("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа", 1, 3).Lesson;
+			foreach (Lesson item in k)
 			{
 				result += item.Time + "\n" + item.Name + "\n" + item.Room + "\n\n";
 			}
 			ViewBag.n = result;
-
+	        ViewBag.J = HomeWorkController.AddHomeWorkToday();
+			
 			return View();
         }
 
