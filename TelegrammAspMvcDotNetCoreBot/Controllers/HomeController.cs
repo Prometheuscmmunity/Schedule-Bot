@@ -10,37 +10,41 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TelegrammAspMvcDotNetCoreBot.Controllers
 {
+    public class HomeController : Controller
+    {
+        private MyContext db;
 
-	public class HomeController : Controller
-	{
-		private MyContext db;
-		
-		public HomeController(MyContext context)
-		{
-			db = context;
-		}
-
-		public IActionResult Index()
+        public HomeController(MyContext context)
         {
-			//ScheduleDay schedule = ScheduleController.GetSchedule("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа", 1, 3);
+            db = context;
+        }
 
-			//List<Lesson> listPar = schedule.Lesson;
+        public IActionResult Index()
+        {
+            //ScheduleDay schedule = ScheduleController.GetSchedule("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа", 1, 3);
 
-			string result = "";
-	        var k = ScheduleController.GetSchedule("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа", 1, 3).Lesson;
-			foreach (Lesson item in k)
-			{
-				result += item.Time + "\n" + item.Name + "\n" + item.Room + "\n\n";
-			}
-			ViewBag.n = result;
-	        ViewBag.J = HomeWorkController.AddHomeWorkToday();
-			
-			return View();
+            //List<Lesson> listPar = schedule.Lesson;
+            HomeWorkController.Unit();
+            string result = "";
+            var k = ScheduleController.GetSchedule("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа", 1, 3).Lesson;
+            foreach (Lesson item in k)
+            {
+                result += item.Time + "\n" + item.Name + "\n" + item.Room + "\n\n";
+            }
+
+            ViewBag.n = result;
+            HomeWorkController.AddHomeWorkToday("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа",
+                "ДИМА ПРИВЕТ");
+
+            ViewBag.k = HomeWorkController.GetHomeWorkToday("мисис", "ИТАСУ", "1", "БИВТ-18-1 1 подгруппа");
+
+
+            return View();
         }
 
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
         }
     }
 }
