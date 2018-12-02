@@ -89,13 +89,13 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 							if (sheet.GetRow(para - 1).GetCell(group - 1) != null)
 								if (sheet.GetRow(para - 1).GetCell(group - 1).StringCellValue != "")
 								{
-									Lesson a = new Lesson() { Name = sheet.GetRow(para - 1).GetCell(group - 1).StringCellValue, Time = sheet.GetRow(para - 1).GetCell(2).StringCellValue, Room = sheet.GetRow(para - 1).GetCell(group).StringCellValue, Teacher = "" };
+									Lesson a = new Lesson() { Name = sheet.GetRow(para - 1).GetCell(group - 1).StringCellValue, Time = sheet.GetRow(para - 1).GetCell(2).StringCellValue, Room = sheet.GetRow(para - 1).GetCell(group).StringCellValue, Teacher = "", Number = ((para - dayofweek) / 2 + 1).ToString() };
 									day1.Lesson.Add(a);
 								}
 
 							if (sheet.GetRow(para).GetCell(group - 1) != null)
 								if (sheet.GetRow(para).GetCell(group - 1).StringCellValue != "")
-									day2.Lesson.Add(new Lesson() { Name = sheet.GetRow(para).GetCell(group - 1).StringCellValue, Time = sheet.GetRow(para - 1).GetCell(2).StringCellValue, Room = sheet.GetRow(para).GetCell(group).StringCellValue, Teacher = "" });
+									day2.Lesson.Add(new Lesson() { Name = sheet.GetRow(para).GetCell(group - 1).StringCellValue, Time = sheet.GetRow(para - 1).GetCell(2).StringCellValue, Room = sheet.GetRow(para).GetCell(group).StringCellValue, Teacher = "", Number = ((para - dayofweek) / 2 + 1).ToString() });
 						}
 
 						week1.Day.Add(day1);

@@ -65,8 +65,27 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
             CreateUser(UserId);
         }
+		
+		public static string GetUserInfo(long UserId, string type)
+		{
+			//Делаю через System.Xml
+			CheckDoc();
+			XmlDocument xDoc = new XmlDocument();
+			xDoc.Load("users.xml");
+			XmlElement xRoot = xDoc.DocumentElement;
+			XmlNode node = xRoot.SelectSingleNode("user[@id='" + UserId + "']");
 
-        public static void EditUser(long UserId, string type, string param)
+			foreach (XmlNode find in node.ChildNodes)
+			{
+				if (find.Name == type)
+				{
+					return find.InnerText;
+				}
+			}
+			return "";
+		}
+
+		public static void EditUser(long UserId, string type, string param)
         {
             //Делаю через System.Xml
             CheckDoc();

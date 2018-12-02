@@ -25,7 +25,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 		public static void Unit()
 		{
 			var optionsBuilder = new DbContextOptionsBuilder<MyContext>();
-			optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=mobilesdb2;Trusted_Connection=True;");
+			optionsBuilder.UseSqlServer("Server=localhost;Database=u0473827_bot;User Id=u0473827_bot;Password=a12345!;");
 			db = new MyContext(optionsBuilder.Options);
 		}
 
@@ -97,9 +97,11 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
 		public static bool IsUniversityExist(string university)
 		{
+			University universitym = db.Universities.Where(m => m.Name == university).FirstOrDefault();
+
 			bool result = false;
 
-			if (db.Universities.Where(n => n.Name == university).FirstOrDefault() != null)
+			if (universitym != null)
 				result = true;
 
 			return result;
@@ -107,9 +109,13 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
 		public static bool IsFacultyExist(string university, string faculty)
 		{
+			University universitym = db.Universities.Where(m => m.Name == university).FirstOrDefault();
+
+			Faculty facultym = db.Faculties.Where(l => l.University == universitym).Where(t => t.Name == faculty).FirstOrDefault();
+
 			bool result = false;
 
-			if (db.Faculties.Where(m => m.University == db.Universities.Where(n => n.Name == university).FirstOrDefault()).Where(e => e.Name == faculty).FirstOrDefault() != null)
+			if (facultym != null)
 				result = true;
 
 			return result;
@@ -117,9 +123,15 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
 		public static bool IsCourseExist(string university, string faculty, string course)
 		{
+			University universitym = db.Universities.Where(m => m.Name == university).FirstOrDefault();
+
+			Faculty facultym = db.Faculties.Where(l => l.University == universitym).Where(t => t.Name == faculty).FirstOrDefault();
+
+			Course coursem = db.Courses.Where(o => o.Facultie == facultym).Where(t => t.Name == course).FirstOrDefault();
+
 			bool result = false;
 
-			if (db.Courses.Where(l => l.Facultie == db.Faculties.Where(m => m.University == db.Universities.Where(n => n.Name == university).FirstOrDefault()).FirstOrDefault()).Where(e => e.Name == course).FirstOrDefault() != null)
+			if (coursem != null)
 				result = true;
 
 			return result;
@@ -127,9 +139,17 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
 		public static bool IsGroupExist(string university, string faculty, string course, string group)
 		{
+			University universitym = db.Universities.Where(m => m.Name == university).FirstOrDefault();
+
+			Faculty facultym = db.Faculties.Where(l => l.University == universitym).Where(t => t.Name == faculty).FirstOrDefault();
+
+			Course coursem = db.Courses.Where(o => o.Facultie == facultym).Where(t => t.Name == course).FirstOrDefault();
+
+			Group groupm = db.Groups.Where(n => n.Course == coursem).Where(t => t.Name == group).FirstOrDefault();
+
 			bool result = false;
 
-			if (db.Groups.Where(o => o.Course == db.Courses.Where(l => l.Facultie == db.Faculties.Where(m => m.University == db.Universities.Where(n => n.Name == university).FirstOrDefault()).FirstOrDefault()).FirstOrDefault()).Where(e => e.Name == group).FirstOrDefault() != null)
+			if (groupm != null)
 				result = true;
 			
 			return result;
@@ -203,26 +223,15 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 		{
 			University universitym = db.Universities.Where(m => m.Name == university).FirstOrDefault();
 
-			Faculty facultym = db.Faculties.Where(l => l.University == db.Universities.Where(m => m.Name == university).FirstOrDefault()).ToList().Where(t => t.Name == faculty).FirstOrDefault();
+			Faculty facultym = db.Faculties.Where(l => l.University == universitym).Where(t => t.Name == faculty).FirstOrDefault();
 
-			Course coursem = db.Courses
-				.Where(o => o.Facultie == db.Faculties
-					.Where(l => l.University == db.Universities
-						.Where(m => m.Name == university).FirstOrDefault())
-							.Where(t => t.Name == faculty).FirstOrDefault())
-								.Where(t => t.Name == course).FirstOrDefault();
+			Course coursem = db.Courses.Where(o => o.Facultie == facultym).Where(t => t.Name == course).FirstOrDefault();
 
-			Group groupm = db.Groups.Where(n => n.Course == db.Courses.Where(o => o.Facultie == db.Faculties.Where(l => l.University == db.Universities.Where(m => m.Name == university).FirstOrDefault()).Where(t => t.Name == faculty).FirstOrDefault()).Where(t => t.Name == course).FirstOrDefault()).ToList().Where(t => t.Name == group).FirstOrDefault();
+			Group groupm = db.Groups.Where(n => n.Course == coursem).Where(t => t.Name == group).FirstOrDefault();
 
-			List<ScheduleDay> li = db.ScheduleWeeks.Where(n => n.Group == db.Groups.Where(k => k.Course == db.Courses.Where(o => o.Facultie == db.Faculties.Where(l => l.University == db.Universities.Where(m => m.Name == university).FirstOrDefault()).Where(t => t.Name == faculty).FirstOrDefault()).Where(t => t.Name == course).FirstOrDefault()).Where(t => t.Name == group).FirstOrDefault()).Where(m => m.Week == week).FirstOrDefault().Day;
-
-			foreach (ScheduleDay item in db.ScheduleWeeks.Where(n => n.Group == db.Groups.Where(k => k.Course == db.Courses.Where(o => o.Facultie == db.Faculties.Where(l => l.University == db.Universities.Where(m => m.Name == university).FirstOrDefault()).Where(t => t.Name == faculty).FirstOrDefault()).Where(t => t.Name == course).FirstOrDefault()).Where(t => t.Name == group).FirstOrDefault()).Where(m => m.Week == week).FirstOrDefault().Day)
-			{
-				if (item.Day == day)
-					return item;
-			}
-
-			return null;
+			List<ScheduleDay> li = db.ScheduleWeeks.Include(c => c.Day).Where(n => n.Group == groupm).Where(m => m.Week == week).FirstOrDefault().Day.ToList();
+			
+			return db.ScheduleDays.Include(r => r.Lesson).Where(f => f.Id == li.Where(n => n.Day == day).FirstOrDefault().Id).FirstOrDefault();
 		}
 	}
 }

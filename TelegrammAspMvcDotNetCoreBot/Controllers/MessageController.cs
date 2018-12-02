@@ -8,6 +8,7 @@ using TelegrammAspMvcDotNetCoreBot.Models;
 using System.IO;
 using System.Net;
 using TelegrammAspMvcDotNetCoreBot.Controllers;
+using System.Globalization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -29,10 +30,10 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 		{
 			if (update == null) return Ok();
 
-            var commands = Bot.Commands;
+			var commands = Bot.Commands;
             var message = update.Message;
             var botClient = await Bot.GetBotClientAsync();
-			
+
 
 			foreach (var command in commands)
             {
@@ -47,7 +48,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 
 			if (UserController.CheckUser(message.Chat.Id))
 			{
-				if (UserController.CheckUserElements(message.Chat.Id, "university") == "")
+				if (UserController.CheckUserElements(message.Chat.Id, "university") == "" && ScheduleController.IsUniversityExist(message.Text))
 				{
 					UserController.EditUser(message.Chat.Id, "university", message.Text);
 
@@ -66,7 +67,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 					return Ok();
 
 				}
-				else if (UserController.CheckUserElements(message.Chat.Id, "faculty") == "")
+				else if (UserController.CheckUserElements(message.Chat.Id, "faculty") == "" && ScheduleController.IsFacultyExist(UserController.GetUserInfo(message.Chat.Id, "university"), message.Text))
 				{
 					UserController.EditUser(message.Chat.Id, "faculty", message.Text);
 
@@ -85,7 +86,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 					return Ok();
 
 				}
-				else if (UserController.CheckUserElements(message.Chat.Id, "course") == "")
+				else if (UserController.CheckUserElements(message.Chat.Id, "course") == "" && ScheduleController.IsCourseExist(UserController.GetUserInfo(message.Chat.Id, "university"), UserController.GetUserInfo(message.Chat.Id, "faculty"), message.Text))
 				{
 					UserController.EditUser(message.Chat.Id, "course", message.Text);
 
@@ -104,24 +105,25 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 					return Ok();
 
 				}
-				else if (UserController.CheckUserElements(message.Chat.Id, "group") == "")
+				else if (UserController.CheckUserElements(message.Chat.Id, "group") == "" && ScheduleController.IsGroupExist(UserController.GetUserInfo(message.Chat.Id, "university"), UserController.GetUserInfo(message.Chat.Id, "faculty"), UserController.GetUserInfo(message.Chat.Id, "course"), message.Text))
 				{
 					UserController.EditUser(message.Chat.Id, "group", message.Text);
 
 					string[][] unn = new string[][]
 					{
 						new string[] {"Сегодня", "Завтра"},
-						new string[] { "Изменить" }
+						new string[] { "Сбросить" }
 					};
 
 					
-					await botClient.SendTextMessageAsync(message.Chat.Id, "Отлично, можем работать!", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown, replyMarkup: (Telegram.Bot.Types.ReplyMarkups.IReplyMarkup)KeybordController.GetKeyboard(unn, 1));
+					await botClient.SendTextMessageAsync(message.Chat.Id, "Отлично, можем работать!", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown, replyMarkup: (Telegram.Bot.Types.ReplyMarkups.IReplyMarkup)KeybordController.GetKeyboard(unn, 2));
 					return Ok();
 
 				}
-				else if (message.Text == "Сегодня")
+				else if (message.Text == "Сегодня" && UserController.GetUserInfo(message.Chat.Id, "group") != "")
 				{
 					int day;
+					int weekNum = (CultureInfo.CurrentCulture).Calendar.GetWeekOfYear(DateTime.Now, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday) % 2 + 1;
 					if ((int)DateTime.Now.DayOfWeek == 0)
 						day = 7;
 					else
@@ -129,14 +131,14 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 						day = (int)DateTime.Now.DayOfWeek;
 					}
 
-					ScheduleDay schedule = ScheduleController.GetSchedule(UserController.CheckUserElements(message.Chat.Id, "university"), UserController.CheckUserElements(message.Chat.Id, "faculty"), UserController.CheckUserElements(message.Chat.Id, "course"), UserController.CheckUserElements(message.Chat.Id, "group"), 1, day);
+					ScheduleDay schedule = ScheduleController.GetSchedule(UserController.CheckUserElements(message.Chat.Id, "university"), UserController.CheckUserElements(message.Chat.Id, "faculty"), UserController.CheckUserElements(message.Chat.Id, "course"), UserController.CheckUserElements(message.Chat.Id, "group"), weekNum, day);
 
 					List<Lesson> listPar = schedule.Lesson.ToList();
 
 					string result = "";
 					foreach (Lesson item in listPar)
 					{
-						result += item.Time + "\n" + item.Name + "\n" + item.Room + "\n\n";
+						result += item.Number + " пара: " + item.Time + "\n" + item.Name + "\n" + item.Room + "\n\n";
 					}
 					if (result != "")
 						await botClient.SendTextMessageAsync(message.Chat.Id, result, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
@@ -146,9 +148,10 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 					return Ok();
 
 				}
-				else if (message.Text == "Завтра")
+				else if (message.Text == "Завтра" && UserController.GetUserInfo(message.Chat.Id, "group") != "")
 				{
 					int day;
+					int weekNum = (CultureInfo.CurrentCulture).Calendar.GetWeekOfYear(DateTime.Now, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday) % 2 + 1;
 					if ((int)DateTime.Now.DayOfWeek == 0)
 						day = 1;
 					else
@@ -159,14 +162,14 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 							day = ((int)DateTime.Now.DayOfWeek + 1) % 7;
 					}
 
-					ScheduleDay schedule = ScheduleController.GetSchedule(UserController.CheckUserElements(message.Chat.Id, "university"), UserController.CheckUserElements(message.Chat.Id, "faculty"), UserController.CheckUserElements(message.Chat.Id, "course"), UserController.CheckUserElements(message.Chat.Id, "group"), 1, day);
+					ScheduleDay schedule = ScheduleController.GetSchedule(UserController.CheckUserElements(message.Chat.Id, "university"), UserController.CheckUserElements(message.Chat.Id, "faculty"), UserController.CheckUserElements(message.Chat.Id, "course"), UserController.CheckUserElements(message.Chat.Id, "group"), weekNum, day);
 
 					List<Lesson> listPar = schedule.Lesson.ToList();
 
 					string result = "";
 					foreach (Lesson item in listPar)
 					{
-						result += item.Time + "\n" + item.Name + "\n" + item.Room + "\n\n";
+						result += item.Number + " пара: " + item.Time + "\n" + item.Name + "\n" + item.Room + "\n\n";
 					}
 					if (result != "")
 						await botClient.SendTextMessageAsync(message.Chat.Id, result, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
@@ -176,7 +179,7 @@ namespace TelegrammAspMvcDotNetCoreBot.Controllers
 					return Ok();
 
 				}
-				else if (message.Text == "Изменить")
+				else if (message.Text == "Сбросить")
 				{
 					message.Text = @"/start";
 
