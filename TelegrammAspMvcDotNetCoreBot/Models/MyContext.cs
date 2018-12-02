@@ -22,5 +22,6 @@ namespace TelegrammAspMvcDotNetCoreBot.Models
 		public DbSet<ScheduleWeek> ScheduleWeeks { get; set; }
 		public DbSet<ScheduleDay> ScheduleDays { get; set; }
 		public DbSet<Lesson> Lessons { get; set; }
+		public DbSet<HomeWork> HomeWorks { get; set; }
 	}
 }
